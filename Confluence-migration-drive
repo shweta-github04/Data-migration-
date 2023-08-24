@@ -1,0 +1,31 @@
+import requests
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
+from google.oauth2.credentials import Credentials
+
+# Confluence API endpoint and authentication
+confluence_url = "CONFLUENCE_API_URL"
+confluence_headers = {"Authorization": "Bearer CONFLUENCE_TOKEN"}
+
+# Google Drive API setup
+drive_credentials = Credentials.from_authorized_user_info(GOOGLE_DRIVE_CREDS_JSON)
+drive_service = build("drive", "v3", credentials=drive_credentials)
+
+# Fetch files from Confluence
+confluence_response = requests.get(confluence_url, headers=confluence_headers)
+confluence_files = confluence_response.json()
+
+# Upload files to Google Drive
+for file_data in confluence_files:
+    file_name = file_data["name"]
+    file_url = file_data["url"]
+
+    # Download the file from Confluence
+    downloaded_file = requests.get(file_url)
+    
+    # Upload the file to Google Drive
+    media = MediaFileUpload(file_name, mimetype='application/octet-stream')
+    drive_file = drive_service.files().create(
+        media_body=media,
+        body={'name': file_name, 'parents': [GOOGLE_DRIVE_FOLDER_ID]}
+    ).execute()
