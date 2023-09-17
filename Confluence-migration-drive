@@ -41,3 +41,64 @@ def main(event, context):
 
 # This function will be called when Lambda is triggered
 # AWS Lambda specific, event and context are provided by the Lambda environment
+
+
+
+
+
+
+
+
+
+
+
+# code to upload file to google drive
+
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.http import MediaFileUpload
+
+# Set the path to your OAuth 2.0 credentials JSON file
+CREDENTIALS_JSON_FILE = 'path/to/your/credentials.json'
+
+# Define the scopes you need for Google Drive API
+SCOPES = ['https://www.googleapis.com/auth/drive.file']
+
+def create_drive_service():
+    flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_JSON_FILE, SCOPES)
+    creds = flow.run_local_server(port=0)
+    service = build('drive', 'v3', credentials=creds)
+    return service
+
+def upload_file(file_path, drive_folder_name):
+    drive_service = create_drive_service()
+    
+    # Find the Drive folder by name
+    folder_query = f"name='{drive_folder_name}' and mimeType='application/vnd.google-apps.folder'"
+    results = drive_service.files().list(q=folder_query).execute()
+    folders = results.get('files', [])
+    
+    if not folders:
+        print(f"Folder '{drive_folder_name}' not found.")
+        return
+    
+    folder_id = folders[0]['id']
+    
+    # Define the file metadata
+    file_metadata = {
+        'name': 'Your_File_Name.ext',  # Change to your desired file name
+        'parents': [folder_id]          # ID of the Google Drive folder where you want to upload the file
+    }
+    
+    # Upload the file
+    media = MediaFileUpload(file_path, resumable=True)
+    uploaded_file = drive_service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+    print(f'File ID: {uploaded_file.get("id")}')
+
+if __name__ == '__main__':
+    file_to_upload = 'path/to/your/file_to_upload.ext'  # Change to the path of your file
+    folder_name = 'Your_Drive_Folder_Name'  # Change to the name of your Drive folder
+    upload_file(file_to_upload, folder_name)
+
+
