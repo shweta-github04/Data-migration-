@@ -102,3 +102,29 @@ if __name__ == '__main__':
     upload_file(file_to_upload, folder_name)
 
 
+
+
+
+#convert doc to docx
+
+
+import os
+from docx import Document
+
+def convert_doc_to_docx(doc_file):
+    # Define the .docx file path
+    docx_file = os.path.splitext(doc_file)[0] + ".docx"
+    
+    # Load the .doc file
+    doc = Document(doc_file)
+    
+    # Save as .docx format
+    doc.save(docx_file)
+    return docx_file
+
+if __name__ == "__main__":
+    doc_file_path = "path/to/your/file.doc"  # Replace with the path to your .doc file
+    docx_file_path = convert_doc_to_docx(doc_file_path)
+    print(f"Converted to: {docx_file_path}")
+
+
