@@ -127,4 +127,23 @@ if __name__ == "__main__":
     docx_file_path = convert_doc_to_docx(doc_file_path)
     print(f"Converted to: {docx_file_path}")
 
+#extract text from .doc
+
+import pytextract
+
+def extract_text_from_doc(doc_file):
+    try:
+        text = pytextract.process(doc_file)
+        return text
+    except Exception as e:
+        print(f"Error: {e}")
+
+if __name__ == "__main__":
+    doc_file_path = "path/to/your/file.doc"  # Replace with the path to your .doc file
+    extracted_text = extract_text_from_doc(doc_file_path)
+    print(extracted_text)
+
+
+
+
 
