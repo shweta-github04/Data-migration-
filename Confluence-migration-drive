@@ -145,5 +145,65 @@ if __name__ == "__main__":
 
 
 
+## convert .doc to .dox file
+
+
+
+import os
+from pydub import AudioSegment
+from pydub.silence import split_on_silence
+from pydub.playback import play
+from pydub.playback import play
+from googleapiclient.discovery import build
+from google.oauth2 import service_account
+
+# Replace with your own values
+input_doc_file = 'input.doc'
+output_docx_file = 'output.docx'
+google_drive_folder_id = 'your_folder_id_here'
+
+# Define a function to convert .doc to .docx using pydub
+def convert_doc_to_docx(input_file, output_file):
+    sound = AudioSegment.from_file(input_file)
+    silence_ranges = split_on_silence(sound, silence_thresh=sound.dBFS - 14)
+    final_sound = AudioSegment.silent(duration=0)
+    for silence in silence_ranges:
+        final_sound += silence
+    final_sound.export(output_file, format="wav")
+    play(final_sound)
+
+# Convert .doc to .docx
+convert_doc_to_docx(input_doc_file, output_docx_file)
+
+# Authenticate and upload to Google Drive
+credentials = service_account.Credentials.from_service_account_file(
+    'your_credentials.json', scopes=['https://www.googleapis.com/auth/drive.file']
+)
+
+service = build('drive', 'v3', credentials=credentials)
+
+file_metadata = {
+    'name': os.path.basename(output_docx_file),
+    'parents': [google_drive_folder_id]
+}
+
+media = MediaFileUpload(output_docx_file, mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+
+uploaded_file = service.files().create(
+    body=file_metadata,
+    media_body=media,
+    fields='id'
+).execute()
+
+print(f'File uploaded to Google Drive with ID: {uploaded_file.get("id")}')
+
+# Clean up the temporary .docx file
+os.remove(output_docx_file)
+
+
+
+
+
+
 
 
