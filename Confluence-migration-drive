@@ -200,8 +200,50 @@ print(f'File uploaded to Google Drive with ID: {uploaded_file.get("id")}')
 # Clean up the temporary .docx file
 os.remove(output_docx_file)
 
+#### doc to google docs
 
 
+import os
+from googleapiclient.discovery import build
+from google.oauth2 import credentials
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+
+# Define the scopes required
+SCOPES = ['https://www.googleapis.com/auth/drive.file']
+
+# Initialize the OAuth flow
+flow = InstalledAppFlow.from_client_secrets_file(
+    'client_secrets.json',
+    SCOPES
+)
+
+# Run the OAuth flow to obtain credentials
+credentials = flow.run_local_server(port=0)
+
+# Create a Google Drive API client
+drive_service = build('drive', 'v3', credentials=credentials)
+
+# Specify the path to your .doc file
+doc_file_path = 'path_to_your.doc'
+
+# Upload the .doc file to Google Drive
+file_metadata = {'name': 'My Converted Doc'}
+media = MediaFileUpload(doc_file_path, mimetype='application/msword')
+uploaded_file = drive_service.files().create(
+    body=file_metadata,
+    media_body=media,
+    fields='id'
+).execute()
+
+# The uploaded file ID
+file_id = uploaded_file.get('id')
+
+# Check if it's successfully uploaded and converted
+if file_id:
+    print(f"File uploaded and converted. File ID: {file_id}")
+else:
+    print("Failed to upload and convert the file.")
 
 
 
