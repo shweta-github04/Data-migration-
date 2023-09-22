@@ -247,5 +247,37 @@ else:
 
 
 
+#######
+
+download file from confluence 
+
+import requests
+
+# Replace with your Confluence access token and the URL of the file you want to download
+access_token = 'your_access_token'
+confluence_file_url = 'https://your-confluence-url/path/to/your/file.html'
+
+# Specify the path where you want to save the downloaded file
+save_path = 'path/to/save/your_downloaded_file.html'
+
+# Create headers with the access token
+headers = {
+    'Authorization': f'Bearer {access_token}',
+}
+
+# Send an HTTP GET request with the access token to download the file
+response = requests.get(confluence_file_url, headers=headers)
+
+# Check if the request was successful (HTTP status code 200)
+if response.status_code == 200:
+    # Open a local file and write the content from the response
+    with open(save_path, 'wb') as file:
+        file.write(response.content)
+    print(f"File downloaded and saved to {save_path}")
+else:
+    print(f"Failed to download the file. Status code: {response.status_code}")
+
+
+
 
 
